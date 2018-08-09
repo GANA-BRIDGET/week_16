@@ -1,0 +1,46 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r Packages, include = FALSE}
+library(tidyverse)
+library(readxl)
+
+sheetnames <- excel_sheets("~/week16_exercise.xlsx")
+
+tidy_data  <- read_xlsx("~/week16_exercise.xlsx", sheet="tidy")
+```
+
+```{r WORKING ADULTS ONLY}
+working_adults = tidy_data %>%
+  filter(sex == "female" | sex == "male",
+         work_status == "working")
+
+working_adults_plot = ggplot(working_adults, aes(exercise, state)) +
+    geom_point(aes(color = sex), size = 3)+
+    geom_line(aes(group = state))+
+    theme(plot.title=element_text(size=12, face="bold"))+
+    labs(title = "WORKING WOMEN AND WORKING MEN EXERCISE PERCENTAGE \n IN THE US.",
+        subtitle = "Percentage of Working Women Against Working Men Who Met The 2008                     \nFederal Guidelines for Both Aerobic and Muscle Strengthening                        \nActivities According to States" )
+ggsave("Working_Adults_Differences.png")
+```
+
+```{r FEMALES EXCLUSIVELY}
+females_only = tidy_data%>%
+  filter(sex == "female")%>%
+  filter(work_status == "working" | work_status == "non_working")
+
+females_only$exercise = as.numeric(females_only$exercise)
+females_only = na.omit(females_only)
+
+females_boxplot = ggplot(females_only, aes(x = work_status, y = exercise))+
+  geom_boxplot(aes(fill = work_status) , outlier.colour = "black", outlier.shape = 10, outlier.size = 2)+
+  theme(plot.title=element_text(size=12, face="bold"))+
+  labs(title = "WORKING AND NON-WORKING FEMALES EXERCISE PERCENTAGES",
+       subtitle = "It Seems The Working Females Have Higher Exercise Percentages Than
+            The Non-Working Females Across States.")
+ggsave("Boxplot_For_Women.png")
+```
+
